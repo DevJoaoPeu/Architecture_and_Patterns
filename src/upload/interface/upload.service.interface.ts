@@ -1,3 +1,4 @@
+
 export abstract class UploadServiceInterface {
-    abstract upload_xlsx(file: any): void;
+    abstract uploadXlsx(file: Express.Multer.File): void;
 }

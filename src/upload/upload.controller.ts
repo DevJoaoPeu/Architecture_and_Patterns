@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { UploadServiceInterface } from "./interface/upload.service.interface";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller('upload')
 export class UploadController {
@@ -8,7 +9,12 @@ export class UploadController {
     ) {}
 
     @Post('xlsx')
-    upload_xlsx(@Body() file: any): void {
-        return this.uploadService.upload_xlsx(file)
+    @UseInterceptors(FileInterceptor('file')) 
+    uploadXlsx(@UploadedFile() file: Express.Multer.File): void {
+        if(!file) {
+            throw new BadRequestException('Arquivo é obrigatório');
+        }
+
+        return this.uploadService.uploadXlsx(file)
     }
 }
