@@ -5,6 +5,8 @@ import { UploadServiceInterface } from "./interface/upload.service.interface";
 import { UserService } from "src/user/user.service";
 import { UserServiceInterface } from "src/user/interface/user.service.interface";
 import { UserModule } from "src/user/user.module";
+import { UploadUseCasesInterface } from "./interface/upload.use-cases.interface";
+import { UploadUseCase } from "./use-cases/upload.use-case";
 
 @Module({
     imports: [UserModule],
@@ -13,6 +15,10 @@ import { UserModule } from "src/user/user.module";
         {
             provide: UploadServiceInterface,
             useClass: UploadService
+        },
+        {
+            provide: UploadUseCasesInterface,
+            useClass: UploadUseCase
         }
     ],
     exports: []
