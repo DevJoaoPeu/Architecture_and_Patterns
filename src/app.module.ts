@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { UploadModule } from './upload/upload.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -20,7 +21,9 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true,
       ssl: false,
     }),
-    UploadModule],
+    UploadModule,
+    UserModule
+  ],
   controllers: [],
   providers: [],
 })

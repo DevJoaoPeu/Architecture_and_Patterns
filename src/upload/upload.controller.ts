@@ -10,7 +10,7 @@ export class UploadController {
 
     @Post('xlsx')
     @UseInterceptors(FileInterceptor('file')) 
-    uploadXlsx(@UploadedFile() file: Express.Multer.File): void {
+    uploadXlsx(@UploadedFile() file: Express.Multer.File): Promise<void> {
         if(!file) {
             throw new BadRequestException('Arquivo é obrigatório');
         }
