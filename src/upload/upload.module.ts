@@ -3,7 +3,7 @@ import { UploadController } from "./upload.controller";
 import { UploadService } from "./upload.service";
 import { UploadServiceInterface } from "./interface/upload.service.interface";
 import { UserService } from "src/user/user.service";
-import { UserServiceInterface } from "src/user/interface/user.interface";
+import { UserServiceInterface } from "src/user/interface/user.service.interface";
 import { UserModule } from "src/user/user.module";
 
 @Module({
