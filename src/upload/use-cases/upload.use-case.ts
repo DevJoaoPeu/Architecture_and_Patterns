@@ -18,8 +18,8 @@ export class UploadUseCase implements UploadUseCasesInterface {
         }
     }
 
-    removeDuplicateRecords<T>(data: T[], uniqueKey: keyof T): T[] {
-        const uniqueValues = new Set<any>();
+    removeDuplicateRecords<T, K extends keyof T>(data: T[], uniqueKey: K): T[]  {
+        const uniqueValues = new Set<T[K]>();
   
         return data.filter(record => {
           const value = record[uniqueKey];
