@@ -1,6 +1,6 @@
 import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { UploadUseCasesInterface } from "../interface/upload.use-cases.interface";
-import { UserServiceInterface } from "src/user/interface/user.service.interface";
+import { UserServiceInterface } from "../../user/interface/user.service.interface";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
