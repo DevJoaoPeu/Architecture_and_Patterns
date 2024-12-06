@@ -1,3 +1,4 @@
+import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { UserServiceInterface } from "../../user/interface/user.service.interface";
 import { UploadServiceInterface } from "../interface/upload.service.interface";
 import { UploadUseCasesInterface } from "../interface/upload.use-cases.interface";
@@ -21,7 +22,7 @@ describe('UploadUseCases', () => {
                 },
                 {
                     provide: UploadUseCasesInterface,
-                    useValue: UploadUseCase
+                    useClass: UploadUseCase
                 },
                 {
                     provide: UserServiceInterface,
@@ -40,4 +41,36 @@ describe('UploadUseCases', () => {
     it('should be defined', () => {
         expect(uploadUseCase).toBeDefined();
     });
+
+    describe('insertUsers', () => {
+        it('deve retornar sucesso', async () => {
+            const mockedData = [
+                {
+                    name: 'John Doe',
+                    email: 'QK2tM@example.com',
+                    surname: 'Doe',
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                },
+                {
+                    name: 'John Doe',
+                    email: 'kajskd@example.com',
+                    surname: 'Doe',
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                }
+            ]
+
+            const result = await uploadUseCase.insertUsers(mockedData);
+
+            expect(result).toEqual(undefined);
+        });
+    })
+
+    describe('removeDuplicateRecords', () => {
+        it('deve remover registros duplicados', () => {
+            const result = uploadUseCase.removeDuplicateRecords([], 'email');
+            expect(result).toEqual([]); 
+        });
+    })
 })
