@@ -179,4 +179,88 @@ describe('UploadService', () => {
             expect(result).toEqual(mockWorksheet1); 
         });
     })
+
+    describe('uploadTxt', () => {
+        const mockTxtFile: Express.Multer.File = {
+          fieldname: 'file',
+          originalname: 'mock-file.txt',
+          encoding: '7bit',
+          mimetype: 'text/plain',
+          buffer: Buffer.from('João;Silva;joao.silva@example.com\nMaria;Santos;maria.santos@example.com'),
+          size: 1024,
+          stream: null,
+          destination: '',
+          filename: 'mock-file.txt',
+          path: '',
+        };
+      
+        it('deve processar e inserir registros corretamente a partir de um arquivo válido', async () => {
+          jest.spyOn(uploadUseCase, 'removeDuplicateRecords').mockImplementation();
+          jest.spyOn(uploadUseCase, 'insertUsers').mockResolvedValue();
+      
+          const result = await uploadService.uploadTxt(mockTxtFile);
+      
+          expect(uploadUseCase.removeDuplicateRecords).toHaveBeenCalledWith(expect.any(Array), 'email');
+          expect(uploadUseCase.insertUsers).toHaveBeenCalledWith(expect.any(Array));
+          expect(result).toEqual({
+            sucess: true,
+            message: 'Arquivo inserido com sucesso',
+          });
+        });
+      
+        it('deve lançar um erro ao tentar inserir usuários inválidos', async () => {
+          jest.spyOn(uploadUseCase, 'removeDuplicateRecords').mockImplementation();
+          jest.spyOn(uploadUseCase, 'insertUsers').mockRejectedValue(new Error('Erro ao inserir usuários'));
+      
+          await expect(uploadService.uploadTxt(mockTxtFile)).rejects.toThrowError('Erro ao inserir usuários');
+        });
+      
+        it('deve retornar sucesso mesmo se o arquivo não contiver linhas duplicadas', async () => {
+          const mockBuffer = Buffer.from('João;Silva;joao.silva@example.com\nMaria;Santos;maria.santos@example.com');
+          const file = { ...mockTxtFile, buffer: mockBuffer };
+      
+          jest.spyOn(uploadUseCase, 'removeDuplicateRecords').mockImplementation();
+          jest.spyOn(uploadUseCase, 'insertUsers').mockResolvedValue();
+      
+          const result = await uploadService.uploadTxt(file);
+      
+          expect(uploadUseCase.removeDuplicateRecords).toHaveBeenCalledWith(expect.any(Array), 'email');
+          expect(result).toEqual({
+            sucess: true,
+            message: 'Arquivo inserido com sucesso',
+          });
+        });
+    });   
+    
+    describe('processFileTxt', () => {
+        it('deve processar corretamente um buffer contendo linhas válidas', () => {
+          const mockBuffer = Buffer.from('João;Silva;joao.silva@example.com\nMaria;Santos;maria.santos@example.com');
+      
+          const result = uploadService['processFileTxt'](mockBuffer);
+      
+          expect(result).toEqual([
+            { name: 'João', surname: 'Silva', email: 'joao.silva@example.com' },
+            { name: 'Maria', surname: 'Santos', email: 'maria.santos@example.com' },
+          ]);
+        });
+      
+        it('deve preencher campos ausentes com strings vazias', () => {
+          const mockBuffer = Buffer.from('João;;joao.silva@example.com\nMaria;Santos;');
+      
+          const result = uploadService['processFileTxt'](mockBuffer);
+      
+          expect(result).toEqual([
+            { name: 'João', surname: '', email: 'joao.silva@example.com' },
+            { name: 'Maria', surname: 'Santos', email: '' },
+          ]);
+        });
+      
+        it('deve retornar um array vazio se o buffer estiver vazio', () => {
+          const mockBuffer = Buffer.from('');
+      
+          const result = uploadService['processFileTxt'](mockBuffer);
+      
+          expect(result).toEqual([]);
+        });
+    });      
 })
