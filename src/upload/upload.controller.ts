@@ -13,20 +13,12 @@ export class UploadController {
     @Post('xlsx')
     @UseInterceptors(FileInterceptor('file')) 
     uploadXlsx(@ValidatedFile() file: Express.Multer.File): Promise<IReturnFile> {
-        if(!file) {
-            throw new BadRequestException('Arquivo é obrigatório');
-        }
-
         return this.uploadService.uploadXlsx(file)
     }
 
     @Post('txt')
     @UseInterceptors(FileInterceptor('file'))
-    async uploadTxt(@ValidatedFile() file: Express.Multer.File): Promise<IReturnFile> {
-      if (!file) {
-        throw new BadRequestException('Arquivo é obrigatório');
-      }
-  
+    async uploadTxt(@ValidatedFile() file: Express.Multer.File): Promise<IReturnFile> { 
       return this.uploadService.uploadTxt(file);
     }
 }
