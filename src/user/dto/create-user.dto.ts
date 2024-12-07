@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import { IsDate, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {
@@ -13,14 +13,10 @@ export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
     surname: string;
-    
-    @IsOptional()
-    @Type(() => Date)
-    @IsDate()
-    createdAt: Date; 
-
-    @IsOptional()
-    @Type(() => Date)
-    @IsDate()
-    updatedAt: Date;
+ 
+    @Exclude()
+    createdAt?: Date;
+  
+    @Exclude()
+    updatedAt?: Date;
 }

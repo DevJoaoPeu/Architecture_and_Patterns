@@ -26,7 +26,10 @@ export class UploadService implements UploadServiceInterface {
   } 
 
   async uploadTxt(file: Express.Multer.File): Promise<IReturnFile> {
-    const processFile: Record<string, string>[] = this.processFileTxt(file.buffer);
+    const processFile: CreateUserDto[] = this.processFileTxt(file.buffer);
+
+    this.uploadUseCase.removeDuplicateRecords(processFile, 'email');
+    await this.uploadUseCase.insertUsers(processFile);
 
     return {
       sucess: true,
@@ -42,19 +45,26 @@ export class UploadService implements UploadServiceInterface {
     return worksheet;
   }
 
-  private processFileTxt(buffer: Buffer): Record<string, string>[] {
+  private processFileTxt(buffer: Buffer): CreateUserDto[] {
     const fileContent: string = buffer.toString('utf-8');
   
     const lines = fileContent
       .split('\n')
       .map((line: string): string => line.trim())
-      .filter((line: string): string => line);
+      .filter((line: string): boolean => !!line);
   
-    const headers: string[] = ['name', 'surname', 'email'];
+    const headers: (keyof CreateUserDto)[] = ['name', 'surname', 'email'];
   
-    return lines.map((line: string): Record<string, string> => {
+    return lines.map((line: string): CreateUserDto => {
       const values = line.split(';').map((value: string): string => value.trim());
-      return Object.fromEntries(headers.map((header: string, index: number) => [header, values[index] || null]));
+  
+      const user: CreateUserDto = {
+        name: values[0] || '', 
+        surname: values[1] || '', 
+        email: values[2] || '', 
+      };
+  
+      return user;
     });
   }
 }
