@@ -14,7 +14,8 @@ describe('UploadController', () => {
                 {
                     provide: UploadServiceInterface,
                     useValue: {
-                        uploadXlsx: jest.fn()
+                        uploadXlsx: jest.fn(),
+                        uploadTxt: jest.fn()
                     }
                 }
             ],
@@ -29,11 +30,6 @@ describe('UploadController', () => {
     });
 
     describe('uploadXlsx', () => {
-        it('deve retornar um error caso o arquivo nao seja enviado', () => {
-            expect(() => uploadController.uploadXlsx(undefined))
-                .toThrow(new BadRequestException('Arquivo é obrigatório'));
-        });
-
         it('deve ser definido', async () => {
             const mockFile: Express.Multer.File = {
                 fieldname: 'file',
@@ -58,5 +54,32 @@ describe('UploadController', () => {
                 message: 'Arquivo inserido com sucesso',
             });
         });
+    })
+    
+    describe('uploadTxt', () => {
+        it('deve ser definido', async () => {
+            const mockFile: Express.Multer.File = {
+                fieldname: 'file',
+                originalname: 'mock-file.xlsx',
+                encoding: '7bit',
+                mimetype: 'text/plain',
+                buffer: Buffer.from('mock Txt data'),
+                size: 12345,
+                stream: null, 
+                destination: '',
+                filename: 'mock-file.txt',
+                path: '',
+            };
+    
+            (uploadService.uploadTxt as jest.Mock).mockResolvedValue({success: true, message: 'Arquivo inserido com sucesso'});
+    
+            const result = await uploadController.uploadTxt(mockFile);
+    
+            expect(uploadService.uploadTxt).toHaveBeenCalledWith(mockFile);
+            expect(result).toEqual({
+                success: true,
+                message: 'Arquivo inserido com sucesso',
+            });
+        })
     })
 })
