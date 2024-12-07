@@ -43,34 +43,79 @@ describe('UploadUseCases', () => {
     });
 
     describe('insertUsers', () => {
-        it('deve retornar sucesso', async () => {
+        it('should return undefined when users are inserted successfully', async () => {
             const mockedData = [
                 {
                     name: 'John Doe',
                     email: 'QK2tM@example.com',
                     surname: 'Doe',
                     createdAt: new Date(),
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
                 },
                 {
-                    name: 'John Doe',
-                    email: 'kajskd@example.com',
+                    name: 'Jane Doe',
+                    email: 'jane.doe@example.com',
                     surname: 'Doe',
                     createdAt: new Date(),
-                    updatedAt: new Date()
-                }
-            ]
+                    updatedAt: new Date(),
+                },
+            ];
+
+            jest.spyOn(userService, 'createMany').mockResolvedValue(undefined);
 
             const result = await uploadUseCase.insertUsers(mockedData);
 
-            expect(result).toEqual(undefined);
+            expect(userService.createMany).toHaveBeenCalledWith(mockedData);
+            expect(result).toBeUndefined();
         });
-    })
 
-    describe('removeDuplicateRecords', () => {
-        it('deve remover registros duplicados', () => {
-            const result = uploadUseCase.removeDuplicateRecords([], 'email');
-            expect(result).toEqual([]); 
+        it('should throw an error if userService.createMany fails', async () => {
+            const mockedData = [
+                {
+                    name: 'John Doe',
+                    email: 'QK2tM@example.com',
+                    surname: 'Doe',
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            ];
+
+            jest.spyOn(userService, 'createMany').mockRejectedValue(new Error('Database error'));
+
+            await expect(uploadUseCase.insertUsers(mockedData)).rejects.toThrow('Database error');
         });
-    })
+    });
+
+   describe('removeDuplicateRecords', () => {
+        it('should remove duplicate records based on the specified field', () => {
+            const mockedData = [
+                { name: 'John Doe', email: 'QK2tM@example.com' },
+                { name: 'Jane Doe', email: 'jane.doe@example.com' },
+                { name: 'John Doe', email: 'QK2tM@example.com' },
+            ];
+
+            const result = uploadUseCase.removeDuplicateRecords(mockedData, 'email');
+
+            expect(result).toEqual([
+                { name: 'John Doe', email: 'QK2tM@example.com' },
+                { name: 'Jane Doe', email: 'jane.doe@example.com' },
+            ]);
+        });
+
+        it('should return the same array if there are no duplicates', () => {
+            const mockedData = [
+                { name: 'John Doe', email: 'QK2tM@example.com' },
+                { name: 'Jane Doe', email: 'jane.doe@example.com' },
+            ];
+
+            const result = uploadUseCase.removeDuplicateRecords(mockedData, 'email');
+
+            expect(result).toEqual(mockedData);
+        });
+
+        it('should return an empty array if the input array is empty', () => {
+            const result = uploadUseCase.removeDuplicateRecords([], 'email');
+            expect(result).toEqual([]);
+        });
+    });
 })
